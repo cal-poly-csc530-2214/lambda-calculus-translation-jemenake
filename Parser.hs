@@ -53,7 +53,7 @@ parseSubExpr chars
          let (exp2,rest') = parseExp (consumeLeadingWS rest) in
             (Mult exp1 exp2, rest')
    | isPrefixOf "(ifleq0 " chars =
-      let (exp1,rest) = parseExp (consumeLeadingWS (drop 3 chars)) in
+      let (exp1,rest) = parseExp (consumeLeadingWS (drop 8 chars)) in
          let (exp2,rest') = parseExp (consumeLeadingWS rest) in
             let (exp3,rest'') = parseExp (consumeLeadingWS rest') in
                (Ifleq0 exp1 exp2 exp3, rest'')
@@ -62,7 +62,7 @@ parseSubExpr chars
          (Println expr, rest)
    -- Otherwise, it has to be an application: (LC LC)
    | otherwise = 
-      let (exp1,rest) = parseExp (consumeLeadingWS (drop 3 chars)) in
+      let (exp1,rest) = parseExp (consumeLeadingWS (tail chars)) in
          let (exp2,rest') = parseExp (consumeLeadingWS rest) in
             (App exp1 exp2, rest')
 
@@ -76,24 +76,29 @@ parseExp chars
    | isAlpha (head chars) = let (idstring,rest) = readID chars in (Id idstring, consumeLeadingWS rest)
    | otherwise = (Num ("parseExp:ERROR: Neither a paren, digit, or alpha in : " ++ chars),[])
 
-scanTo :: (String,String) -> (String, String)
-scanTo (chars, stop_chars)
-   | null chars = ([],[])
-   | otherwise =
-      -- Find the first occurrence of a space or paren
-      let result = findIndex (\c -> c elem stop_chars) (head chars) in
-         case result of
-            Nothing -> (chars,"") -- No special char found, so return whole string
-            Just pos -> splitAt pos chars  
+parse :: String -> Expr
+parse chars =
+   let (expr,rest) = parseExp chars in
+      if null rest then expr else Num ("ERROR: Extra characters after parse : " ++ rest)
 
-data SexprElem = Str String | Sub Sexpr 
-newtype Sexpr = Elem [SexprElem]
+-- scanTo :: (String,String) -> (String, String)
+-- scanTo (chars, stop_chars)
+--    | null chars = ([],[])
+--    | otherwise =
+--       -- Find the first occurrence of a space or paren
+--       let result = findIndex (\c -> c elem stop_chars) (head chars) in
+--          case result of
+--             Nothing -> (chars,"") -- No special char found, so return whole string
+--             Just pos -> splitAt pos chars  
 
-parseSexpr :: String -> (Sexpr, String)
-parseSexpr chars
-   | null chars = (Elem [],[])
-   | head chars == ' ' = parseSexpr (tail chars)
-   | head chars == ')' = (Elem [Str ""], tail chars)
-   | head chars == '(' =
-      let (subexp,rest) = parseSexpr (tail chars) in
-        (Elem ) 
+-- data SexprElem = Str String | Sub Sexpr 
+-- newtype Sexpr = Elem [SexprElem]
+
+-- parseSexpr :: String -> (Sexpr, String)
+-- parseSexpr chars
+--    | null chars = (Elem [],[])
+--    | head chars == ' ' = parseSexpr (tail chars)
+--    | head chars == ')' = (Elem [Str ""], tail chars)
+--    | head chars == '(' =
+--       let (subexp,rest) = parseSexpr (tail chars) in
+--         (Elem ) 
