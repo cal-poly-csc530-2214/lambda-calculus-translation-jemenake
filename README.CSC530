@@ -3,13 +3,15 @@ Author: Joe Emenaker
 Written in: Haskell (GHC)
 Target Langs: Python and Javascript
 
-As of 15:11 on Apr 12, it outputs working Python or JS one-liners which
-evaluate correctly when pasted into the interpreter PROVIDED that you
-build the AST within the Haskell program (i.e. the sexpr/LC parser
-is not working, yet - remember... you said it was fine when I said
-that I'd probably need a little more time if I used Haskell).
+Build with 'ghc --make main'
 
-Currently working on the part which just loops, asking the user to
-enter a number, and it applies the lambda expression to it.
+In main.hs, you can choose what output you want by adjusting the comments
+on the emmitters:
 
-Then, I'll return to making the darned parser work.
+    input <- getLine
+    -- emitLC input
+    -- emitJS input
+    emitPy input
+
+Emits the original lambda calculus syntax, JS, or Python
+
